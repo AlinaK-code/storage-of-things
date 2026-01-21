@@ -44,11 +44,13 @@ class PlaceController extends Controller
 
     public function edit(Place $place)
     {
+        $this->authorize('update', $place);
         return view('places.edit', compact('place'));
     }
 
     public function update(Request $request, Place $place)
     {
+        $this->authorize('update', $place);
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -68,6 +70,7 @@ class PlaceController extends Controller
 
     public function destroy(Place $place)
     {
+        $this->authorize('update', $place);
         $place->delete();
         return redirect()->route('places.index')->with('success', 'Место удалено!');
     }

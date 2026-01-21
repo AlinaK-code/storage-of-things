@@ -13,4 +13,10 @@ class UseRecord extends Model
 
     // Разрешаю массовое заполнение
     protected $fillable = ['thing_id', 'place_id', 'user_id', 'amount'];
+
+    // связи в моделях
+    public function place()
+    {
+        return $this->belongsTo(Place::class, 'place_id');
+    }
 }
