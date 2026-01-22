@@ -32,6 +32,10 @@ Route::middleware('auth')->group(function () {
 
     // для админки
     Route::get('/admin/things', [ThingController::class, 'adminThings'])->name('admin.things');
+
+    // для передачи вещей
+    Route::get('/things/{thing}/assign', [ThingController::class, 'showAssignForm'])->name('things.assign.form');
+    Route::post('/things/{thing}/assign', [ThingController::class, 'assign'])->name('things.assign');
 });
 
 require __DIR__.'/auth.php';

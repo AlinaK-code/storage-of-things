@@ -5,12 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
+use Illuminate\Support\Facades\Cache; // для кэширования
+
 
 class Thing extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'description', 'wrnt', 'master'];
+    protected $fillable = ['name', 'description', 'wrnt', 'master', 'unit_id'];
 
     public function owner()
     {
@@ -21,4 +23,15 @@ class Thing extends Model
     {
         return $this->hasMany(UseRecord::class, 'thing_id');
     }
+
+    public function unit()
+    {
+        return $this->belongsTo(Unit::class);
+    }
+
+    protected static function booted()
+    {
+        static::saved(fn () => self::clearCache());
+    }
+
 }

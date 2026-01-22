@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 class Place extends Model
 {
@@ -25,4 +26,19 @@ class Place extends Model
             $table->dropColumn('master');
         });
     }
+
+    // кеширование очищяю при сохранении или удалении нового эл
+    protected static function booted()
+    {
+        static::saved(fn () => self::clearCache());
+        static::deleted(fn () => self::clearCache());
+    }
+
+    public static function clearCache()
+    {
+        // чищу все ключи, связанные с places
+        Cache::forget('places_all_admin');
+        Cache::flush();
+    }
+
 }

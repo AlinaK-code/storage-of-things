@@ -5,13 +5,19 @@ namespace App\Http\Controllers;
 use App\Models\Place;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Cache;
 
 class PlaceController extends Controller
 {
     use AuthorizesRequests;
     public function index()
     {
-        $places = Place::all();
+        $userId = auth()->id();
+
+        $places = Cache::remember("places_user_{$userId}", 600, function () use ($userId) {
+            return Place::where('master', $userId)->get();
+        });
+
         return view('places.index', compact('places'));
     }
 

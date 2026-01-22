@@ -18,6 +18,7 @@
                     <th>Название</th>
                     <th>Описание</th>
                     <th>Гарантия до</th>
+                    <th>Ед. измерения</th>
                     <th>Действия</th>
                 </tr>
             </thead>
@@ -27,6 +28,7 @@
                         <td>{{ $thing->name }}</td>
                         <td>{{ $thing->description ?? '-' }}</td>
                         <td>{{ $thing->wrnt ?? '-' }}</td>
+                        <td>{{ $thing->unit?->name ?? '—' }}</td>
                         <td>
                             <a href="{{ route('things.show', $thing) }}" class="btn btn-sm btn-info">Просмотр</a>
                             <a href="{{ route('things.edit', $thing) }}" class="btn btn-sm btn-warning">Редактировать</a>
@@ -34,6 +36,9 @@
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Удалить?')">Удалить</button>
+                                @can('update', $thing)
+                                    <a href="{{ route('things.assign.form', $thing) }}" class="btn btn-warning">Передать</a>
+                                @endcan
                             </form>
                         </td>
                     </tr>

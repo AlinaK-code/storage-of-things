@@ -15,6 +15,17 @@
             <textarea class="form-control" id="description" name="description">{{ old('description', $thing->description) }}</textarea>
         </div>
         <div class="mb-3">
+            <label class="form-label">Единица измерения</label>
+            <select name="unit_id" class="form-control">
+                <option value="">Не указана</option>
+                @foreach(App\Models\Unit::all() as $unit)
+                    <option value="{{ $unit->id }}" {{ old('unit_id', $thing->unit_id ?? '') == $unit->id ? 'selected' : '' }}>
+                        {{ $unit->name }} ({{ $unit->symbol }})
+                    </option>
+                @endforeach
+            </select>
+        </div>
+        <div class="mb-3">
             <label for="wrnt" class="form-label">Гарантия до (дата)</label>
             <input type="date" class="form-control" id="wrnt" name="wrnt" value="{{ old('wrnt', $thing->wrnt) }}">
         </div>

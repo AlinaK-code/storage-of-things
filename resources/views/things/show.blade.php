@@ -6,6 +6,7 @@
     <p><strong>Описание:</strong> {{ $thing->description ?? '—' }}</p>
     <p><strong>Гарантия до:</strong> {{ $thing->wrnt ?? '—' }}</p>
     <p><strong>Хозяин:</strong> {{ $thing->owner->name }}</p>
+    <p><strong>Ед. измерения</strong> {{ $thing->unit?->name ?? '—' }}</p>
 
     <a href="{{ route('things.edit', $thing) }}" class="btn btn-warning">Редактировать</a>
     <a href="{{ route('things.index') }}" class="btn btn-secondary">Назад к списку</a>

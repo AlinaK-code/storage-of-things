@@ -2,17 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use App\Models\Place;
+use App\Models\UseRecord;
 use App\Models\Thing;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Cache; // для кеширования
 
 class ThingController extends Controller
 {
     use AuthorizesRequests;
     public function index()
     {
-        $things = Thing::where('master', Auth::id())->get();
+        $userId = auth()->id();
+        // кеширую с помощью встроенного кэша Laravel Cache::remember() на 10 минут (600 секунд)
+        $things = Cache::remember("things_user_{$userId}", 600, function () use ($userId) {
+            return Thing::where('master', $userId)->with('unit')->get();
+        });
         return view('things.index', compact('things'));
     }
 
@@ -27,14 +35,20 @@ class ThingController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'wrnt' => 'nullable|date',
+            'unit_id' => 'nullable|exists:units,id',
         ]);
 
         Thing::create([
             'name' => $validated['name'],
             'description' => $validated['description'],
             'wrnt' => $validated['wrnt'],
+            'unit_id' => $validated['unit_id'],
             'master' => Auth::id(),
         ]);
+
+        // после создания очищаю кэш
+        Cache::forget("things_user_" . auth()->id());
+        Cache::forget('things_admin');
 
         return redirect()->route('things.index')->with('success', 'Вещь создана!');
     }
@@ -67,20 +81,28 @@ class ThingController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'wrnt' => 'nullable|date',
+            'unit_id' => 'nullable|exists:units,id',
         ]);
 
         $thing->update($validated);
+        // после обновлония, очищаю кэш
+        Cache::forget("things_user_" . auth()->id());
+        Cache::forget('things_admin');
 
         return redirect()->route('things.index')->with('success', 'Вещь обновлена!');
     }
 
     public function destroy(Thing $thing)
     {
-        if ($thing->master !== Auth::id()) {
-            abort(403);
-        }
         $this->authorize('delete', $thing);
+
+        $userId = $thing->master;
         $thing->delete();
+
+        // Очищаю кэш
+        Cache::forget("things_user_{$userId}");
+        Cache::forget('things_admin');
+
         return redirect()->route('things.index')->with('success', 'Вещь удалена!');
     }
 
@@ -119,11 +141,47 @@ class ThingController extends Controller
             ->with('title', 'Used things');
     }
 
+    // права админа
     public function adminThings()
     {
         $this->authorize('admin-access'); // проверка через Gate
 
-        $things = Thing::with('owner')->get();
+        $things = Cache::remember('things_all_admin', 600, function () {
+            return Thing::with('owner', 'unit')->get();
+        });
         return view('things.admin', compact('things'));
+    }
+
+    // передача своих вещей в другие руки
+    public function showAssignForm(Thing $thing)
+    {
+        $this->authorize('update', $thing); // только хозяин или админ может передать вещь
+
+        $users = User::all();      // все пользователи
+        $places = Place::all();    // все места
+
+        // ф-ия compact создает массив из этих элементов
+        return view('things.assign', compact('thing', 'users', 'places'));
+    }
+
+    // сохранение
+    public function assign(Request $request, Thing $thing)
+    {
+        $this->authorize('update', $thing);
+
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'place_id' => 'required|exists:places,id',
+            'amount' => 'required|integer|min:1',
+        ]);
+
+        UseRecord::create([
+            'thing_id' => $thing->id,
+            'user_id' => $request->user_id,
+            'place_id' => $request->place_id,
+            'amount' => $request->amount,
+        ]);
+
+        return redirect()->route('things.show', $thing)->with('success', 'Вещь передана!');
     }
 }
