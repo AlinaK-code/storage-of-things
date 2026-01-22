@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Place;
 use App\Models\UseRecord;
+use App\Models\Description;
 use App\Models\Thing;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,7 +17,8 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 class ThingController extends Controller
 {
     use AuthorizesRequests;
-        public function index()
+
+    public function index()
     {
         // Решила поменять логику: тут теперь отображаются все вещи, но только в режиме просмотра
         $things = Thing::with('owner', 'unit')->get();
@@ -48,18 +50,21 @@ class ThingController extends Controller
 
         $thing = Thing::create([
             'name' => $validated['name'],
-            'description' => $validated['description'],
             'wrnt' => $validated['wrnt'],
             'unit_id' => $validated['unit_id'],
             'master' => Auth::id(),
         ]);
 
-        // после создания вещи посылаю широковещательную рассылку всем авторизированным пользователем
-        broadcast(new ThingCreated($thing));
+        // Создаём первое описание
+        if (!empty($validated['description'])) {
+            Description::create([
+                'thing_id' => $thing->id,
+                'content' => $validated['description'],
+                'is_current' => true,
+            ]);
+        }
 
-        // после создания очищаю кэш
-        Cache::forget("things_user_" . auth()->id());
-        Cache::forget('things_admin');
+        broadcast(new ThingCreated($thing));
 
         return redirect()->route('things.index')->with('success', 'Вещь создана!');
     }
@@ -69,7 +74,9 @@ class ThingController extends Controller
         if ($thing->master !== Auth::id()) {
             abort(403);
         }
-        return view('things.show', compact('thing'));
+        
+        $descriptions = $thing->descriptions()->orderBy('created_at', 'desc')->get();
+        return view('things.show', compact('thing', 'descriptions'));
     }
 
     public function edit(Thing $thing)
@@ -182,7 +189,7 @@ class ThingController extends Controller
         $request->validate([
             'user_id' => 'required|exists:users,id',
             'place_id' => 'required|exists:places,id',
-            'amount' => 'required|integer|min:1',
+            'amount' => 'required|integer|min=1',
         ]);
 
         UseRecord::create([
@@ -200,5 +207,27 @@ class ThingController extends Controller
     {
         $things = Thing::with('owner', 'unit')->get();
         return view('things.all', compact('things'));
+    }
+
+    // новый метод добавления описания 
+    public function addDescription(Request $request, Thing $thing)
+    {
+        $this->authorize('update', $thing);
+
+        $request->validate([
+            'content' => 'required|string',
+        ]);
+
+        // Снимаем актуальность со старого
+        $thing->descriptions()->where('is_current', true)->update(['is_current' => false]);
+
+        // Создаём новое
+        Description::create([
+            'thing_id' => $thing->id,
+            'content' => $request->content,
+            'is_current' => true,
+        ]);
+
+        return back()->with('success', 'Описание обновлено!');
     }
 }

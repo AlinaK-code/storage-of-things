@@ -24,4 +24,14 @@ class ThingFactory extends Factory
         'master' => User::factory(),
     ];
     }
+
+    public function configure(): self
+    {
+        return $this->afterCreating(function (Thing $thing) {
+            Description::factory()->create([
+                'thing_id' => $thing->id,
+                'is_current' => true,
+            ]);
+        });
+    }
 }

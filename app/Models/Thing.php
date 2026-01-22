@@ -29,4 +29,14 @@ class Thing extends Model
         return $this->belongsTo(Unit::class);
     }
 
+    public function descriptions()
+    {
+        return $this->hasMany(Description::class);
+    }
+
+    public function currentDescription()
+    {
+        return $this->hasOne(Description::class)->where('is_current', true);
+    }
+
 }

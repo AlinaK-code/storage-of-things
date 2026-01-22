@@ -8,11 +8,11 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Cache;
 use App\Events\PlaceCreated;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
-use Illuminate\Support\Facades\Broadcast;
 
 class PlaceController extends Controller
 {
     use AuthorizesRequests;
+
     public function index()
     {
         $userId = auth()->id();

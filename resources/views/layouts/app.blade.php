@@ -12,7 +12,7 @@
 <body class="bg-light">
     <nav class="navbar navbar-expand-md navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="{{ url('/') }}">{{ config('app.name') }}</a>
+            <a class="navbar-brand" href="{{ url('/') }}">Storage Of Things</a>
             <div class="navbar-nav ms-auto">
                 @auth
                     <li class="nav-item dropdown">
