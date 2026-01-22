@@ -19,4 +19,9 @@ class UseRecord extends Model
     {
         return $this->belongsTo(Place::class, 'place_id');
     }
+
+     public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

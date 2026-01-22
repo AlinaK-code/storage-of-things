@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Place;
 use Illuminate\Http\Request;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class PlaceController extends Controller
 {
+    use AuthorizesRequests;
     public function index()
     {
         $places = Place::all();
@@ -20,19 +22,18 @@ class PlaceController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'repair' => 'boolean',
             'work' => 'boolean',
         ]);
 
-        Place::create([
-            'name' => $validated['name'],
-            'description' => $validated['description'],
-            'repair' => $request->has('repair') ? true : false,
-            'work' => $request->has('work') ? true : false,
-        ]);
+        // назначаем текущего пользователя хозяинов автоматически
+        $placeData = $request->all();
+        $placeData['master'] = auth()->id();
+
+        $place = Place::create($placeData);
 
         return redirect()->route('places.index')->with('success', 'Место создано!');
     }

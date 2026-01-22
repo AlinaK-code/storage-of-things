@@ -52,6 +52,7 @@ class ThingController extends Controller
         if ($thing->master !== Auth::id()) {
             abort(403);
         }
+        $this->authorize('update', $thing);
         return view('things.edit', compact('thing'));
     }
 
@@ -61,6 +62,7 @@ class ThingController extends Controller
             abort(403);
         }
 
+        $this->authorize('update', $thing);
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -77,7 +79,7 @@ class ThingController extends Controller
         if ($thing->master !== Auth::id()) {
             abort(403);
         }
-
+        $this->authorize('delete', $thing);
         $thing->delete();
         return redirect()->route('things.index')->with('success', 'Вещь удалена!');
     }

@@ -8,7 +8,9 @@ use App\Models\User;
 
 class AuthServiceProvider extends ServiceProvider
 {
-    protected $policies = [\App\Models\Place::class => \App\Policies\PlacePolicy::class,];
+    protected $policies = [
+        \App\Models\Place::class => \App\Policies\PlacePolicy::class,
+        \App\Models\Thing::class => \App\Policies\ThingPolicy::class,];
 
     public function boot(): void
     {
