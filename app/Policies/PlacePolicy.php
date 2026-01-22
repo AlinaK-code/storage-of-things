@@ -23,12 +23,7 @@ class PlacePolicy
 
     public function view(User $user, Place $place): bool
     {
-        return true; // все могут просматривать
-    }
-
-    public function create(User $user): bool
-    {
-        return true; // все могут создавать
+        return $user->isAdmin() || $place->master === $user->id;
     }
 
     public function update(User $user, Place $place): bool
@@ -40,4 +35,5 @@ class PlacePolicy
     {
         return $place->master === $user->id;
     }
+
 }

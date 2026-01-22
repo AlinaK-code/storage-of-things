@@ -23,7 +23,7 @@ class ThingPolicy
 
     public function view(User $user, Thing $thing): bool
     {
-        return true;
+        return $user->isAdmin() || $thing->master === $user->id;
     }
 
     public function create(User $user): bool

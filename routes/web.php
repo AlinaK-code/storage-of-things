@@ -20,7 +20,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // доп маршруты для списков вещей
+    // доп маршруты для списков вещей (перенесла в api)
     Route::get('/things/my', [ThingController::class, 'myThings'])->name('things.my');
     Route::get('/things/repair', [ThingController::class, 'repairThings'])->name('things.repair');
     Route::get('/things/work', [ThingController::class, 'workThings'])->name('things.work');
@@ -35,10 +35,14 @@ Route::middleware('auth')->group(function () {
 
     // для передачи вещей
     Route::get('/things/{thing}/assign', [ThingController::class, 'showAssignForm'])->name('things.assign.form');
-    Route::post('/things/{thing}/assign', [ThingController::class, 'assign'])->name('things.assign');
+    // Route::post('/things/{thing}/assign', [ThingController::class, 'assign'])->name('things.assign');
 
     // показывать все вещи всех пользователей 
     Route::get('/things/all', [ThingController::class, 'allThings'])->name('things.all');
+
+    // дополнительное описание
+    Route::post('/things/{thing}/description', [ThingController::class, 'addDescription'])
+    ->name('things.description.add');
 });
 
 require __DIR__.'/auth.php';
