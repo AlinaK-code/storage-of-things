@@ -1,3 +1,4 @@
+<!-- админка: может просматривать все вещи -->
 @extends('layouts.app')
 
 @section('content')

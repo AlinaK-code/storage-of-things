@@ -1,3 +1,4 @@
+<!-- страница назначения вещи -->
 @extends('layouts.app')
 
 @section('content')

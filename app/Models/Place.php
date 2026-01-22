@@ -41,4 +41,9 @@ class Place extends Model
         Cache::flush();
     }
 
+    public function owner()
+    {
+        return $this->belongsTo(User::class, 'master');
+    }
+
 }

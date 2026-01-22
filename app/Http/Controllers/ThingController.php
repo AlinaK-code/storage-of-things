@@ -10,19 +10,27 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Cache; // для кеширования
+use App\Events\ThingCreated;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 
 class ThingController extends Controller
 {
     use AuthorizesRequests;
-    public function index()
+        public function index()
     {
-        $userId = auth()->id();
-        // кеширую с помощью встроенного кэша Laravel Cache::remember() на 10 минут (600 секунд)
-        $things = Cache::remember("things_user_{$userId}", 600, function () use ($userId) {
-            return Thing::where('master', $userId)->with('unit')->get();
-        });
+        // Решила поменять логику: тут теперь отображаются все вещи, но только в режиме просмотра
+        $things = Thing::with('owner', 'unit')->get();
         return view('things.index', compact('things'));
     }
+    // public function index()
+    // {
+    //     $userId = auth()->id();
+    //     // кеширую с помощью встроенного кэша Laravel Cache::remember() на 10 минут (600 секунд)
+    //     $things = Cache::remember("things_user_{$userId}", 600, function () use ($userId) {
+    //         return Thing::where('master', $userId)->with('unit')->get();
+    //     });
+    //     return view('things.index', compact('things'));
+    // }
 
     public function create()
     {
@@ -38,13 +46,16 @@ class ThingController extends Controller
             'unit_id' => 'nullable|exists:units,id',
         ]);
 
-        Thing::create([
+        $thing = Thing::create([
             'name' => $validated['name'],
             'description' => $validated['description'],
             'wrnt' => $validated['wrnt'],
             'unit_id' => $validated['unit_id'],
             'master' => Auth::id(),
         ]);
+
+        // после создания вещи посылаю широковещательную рассылку всем авторизированным пользователем
+        broadcast(new ThingCreated($thing));
 
         // после создания очищаю кэш
         Cache::forget("things_user_" . auth()->id());
@@ -108,11 +119,10 @@ class ThingController extends Controller
 
     public function myThings()
     {
-        $things = Thing::where('master', auth()->id())->get();
-        return view('things.list', compact('things'))
-            ->with('title', 'My things');
+        $things = Thing::where('master', auth()->id())->with('unit')->get();
+        return view('things.my', compact('things')); // ← теперь my.blade.php
     }
-
+    
     public function repairThings()
     {
         $things = Thing::whereHas('uses.place', function ($query) {
@@ -183,5 +193,12 @@ class ThingController extends Controller
         ]);
 
         return redirect()->route('things.show', $thing)->with('success', 'Вещь передана!');
+    }
+
+    // показывает вещи всех пользователей 
+    public function allThings()
+    {
+        $things = Thing::with('owner', 'unit')->get();
+        return view('things.all', compact('things'));
     }
 }

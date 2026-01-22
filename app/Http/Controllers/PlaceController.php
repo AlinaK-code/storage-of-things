@@ -6,6 +6,9 @@ use App\Models\Place;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Cache;
+use App\Events\PlaceCreated;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
+use Illuminate\Support\Facades\Broadcast;
 
 class PlaceController extends Controller
 {
@@ -26,6 +29,7 @@ class PlaceController extends Controller
         return view('places.create');
     }
 
+    
     public function store(Request $request)
     {
         $request->validate([
@@ -35,11 +39,17 @@ class PlaceController extends Controller
             'work' => 'boolean',
         ]);
 
-        // назначаем текущего пользователя хозяинов автоматически
         $placeData = $request->all();
         $placeData['master'] = auth()->id();
 
         $place = Place::create($placeData);
+
+        // Вещание события
+        broadcast(new PlaceCreated($place));
+
+        // Очистка кэша
+        Cache::forget("places_user_" . auth()->id());
+        // Если есть админка — очисти и её кэш
 
         return redirect()->route('places.index')->with('success', 'Место создано!');
     }

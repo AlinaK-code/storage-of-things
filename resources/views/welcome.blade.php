@@ -1,3 +1,4 @@
+<!-- страница приветсвия и регистрации (создано автоматически Laravel) -->
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>

@@ -29,9 +29,4 @@ class Thing extends Model
         return $this->belongsTo(Unit::class);
     }
 
-    protected static function booted()
-    {
-        static::saved(fn () => self::clearCache());
-    }
-
 }

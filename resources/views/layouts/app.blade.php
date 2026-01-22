@@ -7,6 +7,8 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
+
+
 <body class="bg-light">
     <nav class="navbar navbar-expand-md navbar-dark bg-dark">
         <div class="container">
@@ -54,5 +56,40 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Toastify -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+    <!-- Pusher -->
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+
+    <script>
+        Pusher.logToConsole = true; 
+
+        const pusher = new Pusher('29826454bf883ab0360a', {
+            cluster: 'eu',
+            forceTLS: false
+        });
+
+        // Канал для вещей
+        const thingChannel = pusher.subscribe('thing-updates');
+        thingChannel.bind('App\\Events\\ThingCreated', function(data) {
+            Toastify({
+                text: ` Новая вещь: ${data.name}`,
+                duration: 4000,
+                backgroundColor: "#4CAF50",
+            }).showToast();
+        });
+
+        // Канал для мест
+        const placeChannel = pusher.subscribe('place-updates');
+        placeChannel.bind('App\\Events\\PlaceCreated', function(data) {
+            Toastify({
+                text: `Новое место: ${data.name}`,
+                duration: 4000,
+                backgroundColor: "#2196F3",
+            }).showToast();
+        });
+    </script>
 </body>
 </html>

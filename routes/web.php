@@ -36,6 +36,9 @@ Route::middleware('auth')->group(function () {
     // для передачи вещей
     Route::get('/things/{thing}/assign', [ThingController::class, 'showAssignForm'])->name('things.assign.form');
     Route::post('/things/{thing}/assign', [ThingController::class, 'assign'])->name('things.assign');
+
+    // показывать все вещи всех пользователей 
+    Route::get('/things/all', [ThingController::class, 'allThings'])->name('things.all');
 });
 
 require __DIR__.'/auth.php';
