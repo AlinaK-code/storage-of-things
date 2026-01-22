@@ -21,7 +21,7 @@ class ThingController extends Controller
     public function index()
     {
         // Решила поменять логику: тут теперь отображаются все вещи, но только в режиме просмотра
-        $things = Thing::with('owner', 'unit')->get();
+        $things = Thing::with('owner', 'unit', 'uses.place')->get();
         return view('things.index', compact('things'));
     }
     // public function index()

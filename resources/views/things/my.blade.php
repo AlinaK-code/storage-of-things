@@ -2,51 +2,68 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
-    <h1>Мои вещи</h1>
-    <a href="{{ route('things.create') }}" class="btn btn-primary mb-3">Добавить вещь</a>
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Мои вещи</h1>
+        <a href="{{ route('things.create') }}" class="btn btn-dark">Добавить вещь</a>
+    </div>
 
     @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
     @endif
 
     @if($things->isEmpty())
-        <p>У вас нет вещей.</p>
+        <div class="text-center py-5">
+            <p class="text-muted">У вас нет вещей.</p>
+        </div>
     @else
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Название</th>
-                    <th>Описание</th>
-                    <th>Гарантия до</th>
-                    <th>Ед. измерения</th>
-                    <th>Действия</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($things as $thing)
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
                     <tr>
-                        <td>{{ $thing->name }}</td>
-                        <td>{{ $thing->description ?? '-' }}</td>
-                        <td>{{ $thing->wrnt ? \Carbon\Carbon::parse($thing->wrnt)->format('d.m.Y') : '-' }}</td>
-                        <td>{{ $thing->unit?->symbol ?? '—' }}</td>
-                        <td>
-                            <a href="{{ route('things.show', $thing) }}" class="btn btn-sm btn-info">Просмотр</a>
-                            <a href="{{ route('things.edit', $thing) }}" class="btn btn-sm btn-warning">Редактировать</a>
-                            <form action="{{ route('things.destroy', $thing) }}" method="POST" style="display:inline;">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Удалить?')">Удалить</button>
-                            </form>
-                            <a href="{{ route('things.assign.form', $thing) }}" class="btn btn-sm btn-secondary">Передать</a>
-                        </td>
+                        <th scope="col">Название</th>
+                        <th scope="col">Описание</th>
+                        <th scope="col">Гарантия до</th>
+                        <th scope="col">Ед. изм.</th>
+                        <th scope="col">Действия</th>
                     </tr>
-                @endforeach
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach($things as $thing)
+                        <tr>
+                            <td><strong>{{ $thing->name }}</strong></td>
+                            <td>
+                                <div style="max-width: 250px; word-wrap: break-word;">
+                                    {{ $thing->currentDescription?->content ?? '—' }}
+                                </div>
+                            </td>
+                            <td>{{ $thing->wrnt ? \Carbon\Carbon::parse($thing->wrnt)->format('d.m.Y') : '—' }}</td>
+                            <td>{{ $thing->unit?->symbol ?? '—' }}</td>
+                            <td>
+                                <div class="d-flex gap-1">
+                                    <a href="{{ route('things.show', $thing) }}" class="btn btn-sm btn-outline-info">Просмотр</a>
+                                    <a href="{{ route('things.edit', $thing) }}" class="btn btn-sm btn-outline-dark">Редактировать</a>
+                                    <form action="{{ route('things.destroy', $thing) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Удалить?')">
+                                            Удалить
+                                        </button>
+                                    </form>
+                                    <a href="{{ route('things.assign.form', $thing) }}" class="btn btn-sm btn-outline-secondary">Передать</a>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
     @endif
 
-    <div class="mt-4 text-left">
+    <div class="mt-4 text-start">
         <a href="{{ route('things.index') }}" class="btn btn-outline-secondary">
             ← Все вещи
         </a>

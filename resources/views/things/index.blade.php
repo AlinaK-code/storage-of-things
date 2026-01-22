@@ -31,9 +31,14 @@
                         <th scope="col">Действия</th>
                     </tr>
                 </thead>
+                 <!-- кастомные блейд директива (в AppServiceProvider.php ) -->
+                     <!-- сделала пхп логику для переключения классов -->
+                      <!-- выбираю первую запись из таблицы uses и сравниваю repair? work? -->
                 <tbody>
-                    @foreach($things as $thing)
-                        <tr>
+                 @foreach($things as $thing)
+                        <tr class="
+                            @highlightOwner($thing)
+                        ">
                             <td><strong>{{ $thing->name }}</strong></td>
                             <td>
                                 <div style="max-width: 250px; word-wrap: break-word;">

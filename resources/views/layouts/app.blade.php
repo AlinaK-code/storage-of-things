@@ -6,8 +6,33 @@
     <title>{{ config('app.name', 'Laravel') }}</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
 
+    <style>
+        /* стили для кастомной директивы блейд ыделение своих вещей в таблице */
+        .table tr.highlight-owner td {
+            background-color: #e9dcf7 !important;
+            transition: background-color 0.2s;
+        }
+
+        /* для активных вкладок */
+        .navbar-dark .navbar-nav .nav-link.active,
+        .navbar-dark .navbar-nav .dropdown.active > .nav-link {
+            color: #e08ef3 !important; 
+            font-weight: 600;
+        }
+        .dropdown-menu .dropdown-item.active {
+            background-color: #f9e0fe !important;
+            color: #e08ef3  !important;
+        }
+
+        .table tr.highlight-repair td {
+            background-color: #e6f7e6 !important; 
+        }
+        .table tr.highlight-work td {
+            background-color: #fff9e6 !important; 
+        }
+    </style>
+</head>
 
 <body class="bg-light">
     <nav class="navbar navbar-expand-md navbar-dark bg-dark">
@@ -15,34 +40,39 @@
             <a class="navbar-brand" href="{{ url('/') }}">Storage Of Things</a>
             <div class="navbar-nav ms-auto">
                 @auth
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="thingsDropdown" role="button" data-bs-toggle="dropdown">
+                    <li class="nav-item dropdown {{ request()->routeIs('things.my', 'things.repair', 'things.work', 'things.used', 'things.index') ? 'active' : '' }}">
+                        <a class="nav-link dropdown-toggle {{ request()->routeIs('things.my', 'things.repair', 'things.work', 'things.used', 'things.index') ? 'active' : '' }}"
+                           href="#" id="thingsDropdown" role="button" data-bs-toggle="dropdown">
                             Мои вещи
                         </a>
+                        <!-- кастомная директория обновления цвета активной вкладки -->
                         <ul class="dropdown-menu" aria-labelledby="thingsDropdown">
-                            <li><a class="dropdown-item" href="{{ route('things.my') }}">My things</a></li>
-                            <li><a class="dropdown-item" href="{{ route('things.repair') }}">Repair things</a></li>
-                            <li><a class="dropdown-item" href="{{ route('things.work') }}">Work</a></li>
-                            <li><a class="dropdown-item" href="{{ route('things.used') }}">Used things</a></li>
+                            <li><a class="dropdown-item {{ request()->routeIs('things.my') ? 'active' : '' }}" href="{{ route('things.my') }}">My things</a></li>
+                            <li><a class="dropdown-item {{ request()->routeIs('things.repair') ? 'active' : '' }}" href="{{ route('things.repair') }}">Repair things</a></li>
+                            <li><a class="dropdown-item {{ request()->routeIs('things.work') ? 'active' : '' }}" href="{{ route('things.work') }}">Work</a></li>
+                            <li><a class="dropdown-item {{ request()->routeIs('things.used') ? 'active' : '' }}" href="{{ route('things.used') }}">Used things</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{{ route('things.index') }}">Все вещи</a></li>
+                            <li><a class="dropdown-item {{ request()->routeIs('things.index') ? 'active' : '' }}" href="{{ route('things.index') }}">Все вещи</a></li>
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('places.index') }}">Места</a>
+                        <a class="nav-link {{ request()->routeIs('places.index') ? 'active' : '' }}" href="{{ route('places.index') }}">Места</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('profile.edit') }}">Профиль</a>
+                        <a class="nav-link {{ request()->routeIs('profile.edit') ? 'active' : '' }}" href="{{ route('profile.edit') }}">Профиль</a>
                     </li>
-                    <li class="nav-item">
-                        <form method="POST" action="{{ route('logout') }}" class="d-inline">
+                   <li class="nav-item">
+                        <a class="nav-link" href="{{ route('logout') }}" 
+                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                            Выход
+                        </a>
+                        <form id="logout-form" method="POST" action="{{ route('logout') }}" class="d-none">
                             @csrf
-                            <button type="submit" class="btn btn-link nav-link text-white p-0">Выход</button>
                         </form>
                     </li>
                     @can('admin-access')
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('admin.things') }}">Админка: вещи</a>
+                            <a class="nav-link {{ request()->routeIs('admin.things') ? 'active' : '' }}" href="{{ route('admin.things') }}">Админка: вещи</a>
                         </li>
                     @endcan
                 @endauth

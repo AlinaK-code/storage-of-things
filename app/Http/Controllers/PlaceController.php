@@ -16,7 +16,7 @@ class PlaceController extends Controller
     public function index()
     {
         $userId = auth()->id();
-
+        
         $places = Cache::remember("places_user_{$userId}", 600, function () use ($userId) {
             return Place::where('master', $userId)->get();
         });

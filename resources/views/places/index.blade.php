@@ -1,3 +1,4 @@
+<!-- таблица со всеми местами хранения -->
 @extends('layouts.app')
 
 @section('content')
@@ -32,7 +33,9 @@
                 </thead>
                 <tbody>
                     @foreach($places as $place)
-                        <tr>
+                        <tr class="
+                            @highlightPlaceType($place)
+                        ">
                             <td><strong>{{ $place->name }}</strong></td>
                             <td>
                                 <div style="max-width: 220px; word-wrap: break-word;">
