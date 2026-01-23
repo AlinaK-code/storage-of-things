@@ -58,6 +58,9 @@
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('places.index') ? 'active' : '' }}" href="{{ route('places.index') }}">Места</a>
                     </li>
+                   <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('archive.index') ? 'active' : '' }}" href="{{ route('archive.index') }}">Архив</a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('profile.edit') ? 'active' : '' }}" href="{{ route('profile.edit') }}">Профиль</a>
                     </li>

@@ -39,4 +39,11 @@ class Thing extends Model
         return $this->hasOne(Description::class)->where('is_current', true);
     }
 
+    protected static function booted()
+    {
+        static::deleting(function ($thing) {
+            event(new \App\Events\ThingDeleting($thing));
+        });
+    }
+
 }

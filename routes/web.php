@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ThingController;
 use App\Http\Controllers\PlaceController;
+use App\Http\Controllers\ArchiveController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -43,6 +44,10 @@ Route::middleware('auth')->group(function () {
     // дополнительное описание
     Route::post('/things/{thing}/description', [ThingController::class, 'addDescription'])
     ->name('things.description.add');
+
+    // архивы 
+    Route::get('/archive', [ArchiveController::class, 'index'])->name('archive.index');
+    Route::post('/archive/{archive}/restore', [ArchiveController::class, 'restore'])->name('archive.restore');
 });
 
 require __DIR__.'/auth.php';

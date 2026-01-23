@@ -110,18 +110,28 @@ class ThingController extends Controller
         return redirect()->route('things.index')->with('success', 'Вещь обновлена!');
     }
 
-    public function destroy(Thing $thing)
+   public function destroy(Thing $thing)
     {
         $this->authorize('delete', $thing);
 
-        $userId = $thing->master;
+        // Архив до дел
+        $lastUse = $thing->uses->last();
+        \App\Models\Archive::create([
+            'name' => $thing->name,
+            'description' => $thing->currentDescription?->content,
+            'wrnt' => $thing->wrnt,
+            'unit_symbol' => $thing->unit?->symbol,
+            'owner_name' => $thing->owner?->name,
+            'owner_id' => $thing->master,
+            'last_user_name' => optional($lastUse?->user)->name,
+            'last_user_id' => optional($lastUse?->user)->id,
+            'place_name' => optional($lastUse?->place)->name,
+            'restored' => false,
+        ]);
+
         $thing->delete();
 
-        // Очищаю кэш
-        Cache::forget("things_user_{$userId}");
-        Cache::forget('things_admin');
-
-        return redirect()->route('things.index')->with('success', 'Вещь удалена!');
+        return redirect()->back()->with('success', 'Вещь удалена и перемещена в архив.');
     }
 
     public function myThings()
@@ -229,5 +239,10 @@ class ThingController extends Controller
         ]);
 
         return back()->with('success', 'Описание обновлено!');
+    }
+
+    public function uses()
+    {
+        return $this->hasMany(\App\Models\UseRecord::class);
     }
 }
